@@ -1,0 +1,190 @@
+<!-- Anton Fleming -->
+<!-- hw 9 -->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+</head>
+
+<body>
+    <style>
+        html {
+            color: #FFF4B7;
+            border-radius: 20px;
+        }
+
+        h3 {
+            margin: 0;
+        }
+
+        button {
+            color: #FFF4B7;
+            background-color: #006A67;
+            border: medium solid #003161;
+            border-radius: 10px;
+            width: 60px;
+            height: 40px;
+        }
+
+        #calculatorBody {
+            text-align: center;
+            background-color: #000B58;
+            width: 300px;
+            border-radius: 20px;
+            border: medium solid #006A67;
+            padding: 10px;
+        }
+
+        #numbers {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+
+        #operationsChain {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #006A67;
+            border: medium solid #003161;
+            border-radius: 10px;
+            min-height: 40px;
+            margin: 5px 0;
+        }
+    </style>
+
+    <div id="calculatorBody">
+        <h3>Calculator</h3>
+        <div id="operationsChain"></div>
+        <div id="inputsWrapper">
+            <div id="numbers">
+                <button class="numbers" value="0">0</button>
+                <button class="numbers" value="1">1</button>
+                <button class="numbers" value="2">2</button>
+                <button class="numbers" value="3">3</button>
+                <button class="numbers" value="4">4</button>
+                <button class="numbers" value="5">5</button>
+                <button class="numbers" value="6">6</button>
+                <button class="numbers" value="7">7</button>
+                <button class="numbers" value="8">8</button>
+                <button class="numbers" value="9">9</button>
+            </div>
+            <div id="operations">
+                <button id="clear" class="operations" onclick="calc.clear(this)">CE</button>
+                <button name="operation" class="operations" value="+">+</button>
+                <button name="operation" class="operations" value="-">-</button>
+                <button name="operation" class="operations" value="*">*</button>
+                <button name="operation" class="operations" value="/">/</button>
+                <button name="number" class="operations" value=".">.</button>
+                <button id="equals" class="operations" onclick="calc.getSolution(this)">=</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class Calculator {
+            constructor(operationChain) {
+                this.total = 0;
+                this.operationChain = operationChain;
+                this.waitingOnSecondNumber = false;
+            }
+
+            // add numbers and symbols to dom at specified ID
+            addToOperationsChain(e) {
+                this.operationChain.innerHTML += e;
+            }
+            handleInputs(e) {
+                let isButton, isOperation;
+                e.nodeName === "BUTTON" ? isButton = true : isButton = false;
+
+                if (isButton) {
+                    e.name === "operation" ? isOperation = true : isOperation = false;
+                    if (isOperation && !this.waitingOnSecondNumber) {
+                        this.addToOperationsChain(" " + e.value + " ");
+                        this.waitingOnSecondNumber = true;
+                    } else if (!isOperation) {
+                        this.addToOperationsChain(e.value);
+                        this.waitingOnSecondNumber = false;
+                    }
+                }
+            }
+
+            // operations
+            add(num) {
+                num = parseFloat(num);
+
+                this.total += num;
+            }
+            subtract(num) {
+                num = parseFloat(num);
+
+                this.total -= num;
+            }
+            multiply(num) {
+                num = parseFloat(num);
+
+                this.total *= num;
+            }
+            divide(num) {
+                num = parseFloat(num);
+
+                this.total /= num;
+            }
+
+            getSolution() {
+                const array = this.operationChain.innerHTML.split(" ");
+
+                // pointers
+                let left, operation, right;
+                this.total = parseFloat(array[0]);
+
+                if (array.length != 1)
+                    for (let i = 1; i < array.length - 1; i++) {
+                        operation = i;
+                        right = i + 1;
+
+                        switch (array[operation]) {
+                            case "+":
+                                this.add(array[right]);
+                                break;
+
+                            case "-":
+                                this.subtract(array[right]);
+                                break;
+
+                            case "*":
+                                this.multiply(array[right]);
+                                break;
+
+                            case "/":
+                                this.divide(array[right]);
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
+
+                this.operationChain.innerHTML = this.total;
+            }
+            clear() {
+                this.inputs = [];
+                this.total = 0;
+                this.operationChain.innerHTML = "";
+            }
+        }
+
+        function addElements(str) { return document.getElementById(str) }
+        const calc = new Calculator(addElements("operationsChain"));
+
+        const inputsWrapper = document.getElementById("inputsWrapper");
+        inputsWrapper.addEventListener("click", (event) => {
+            calc.handleInputs(event.target);
+        })
+
+    </script>
+</body>
+
+</html>
